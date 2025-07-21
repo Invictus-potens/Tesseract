@@ -7,7 +7,17 @@ const path = require('path');
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
+app.use((req, res, next) => {
+  console.log(`[REQUEST] ${req.method} ${req.url} at ${new Date().toISOString()}`);
+  next();
+});
+
 app.post('/ocr', upload.single('file'), (req, res) => {
+  if (req.file) {
+    console.log(`[IMAGE] Received file for OCR: ${req.file.originalname || req.file.filename}, saved as ${req.file.path}`);
+  } else {
+    console.log('[IMAGE] No file received in OCR request.');
+  }
   const filePath = req.file.path;
   const outPath = filePath + '-out';
   exec(`tesseract ${filePath} ${outPath} -l por`, (err) => {
